@@ -137,3 +137,50 @@ docker run --rm -ti \
 ```
 
 Now the data is imported and you can browse it in Kibana.
+
+### Timelion queries
+
+First set the looked at period to be between 12:58:00 - 13:03:00 o'clock on 05.04.2018. All events in the example log happenend in this period.
+
+##### Example queries
+1. Show the number of events over time
+```
+.es(q=*).bars()
+```
+2. Show the number of events according to users over time
+```
+.es(q=natuser:USER1), .es(q=natuser:USER2), .es(q=natuser:USER3)
+```
+or shorter
+```
+.es(q=*,split="natuser.keyword:3")
+```
+
+3. Show events of top ten most called natprograms
+```
+.es(q=*,split="natprogram.keyword:10")
+```
+
+4. Show events by command codes
+```
+.es(split="command_code.keyword:10")
+```
+Show again without L3 commands
+```
+.es(q=command_code:OP), .es(q=command_code:CL), .es(q=command_code:L1), .es(q=command_code:S1)
+```
+
+5. Show L3 commands for natprogramm DISPLX02 only:
+```
+.es(q='command_code:L3 AND natprogram:DISPLX02')
+```
+
+6. Show top fifteen programs issuing a nonzero response code:
+```
+.es(q='response_code:(NOT 0)', split='natprogram.keyword:15')
+```
+
+7. Show in which statements in library SYSEXPG the most time is spent (remark: This query does not usually make sense for a real world application, but in example programs used to generate the dataset we work with are so simple that we cannot see much when we use 'natprogram' instead of 'natlib' to see the distribution of time taken on natprogram level): 
+```
+.es(q='natlib:(SYSEXPG)', split='natstatement.keyword:10', metric=sum:duration)
+```
